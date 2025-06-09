@@ -31,6 +31,8 @@ def encrypt_file(file_name, shift):
     with open(file_name, "w", encoding="utf-8") as encrypted_file:
         encrypted_file.write(encrypted)
 
+#Para mas contenido, siguenos como XONIDU
+
 def decrypt_file(file_name, shift):
     with open(file_name, "r", encoding="utf-8") as file:
         encrypted = file.read()
