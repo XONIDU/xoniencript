@@ -1,20 +1,27 @@
-🔐 XONIENCRIPT
+# 📄 XONIENCRIPT
 
-Advertencia: Este código tiene únicamente fines educativos y no debe utilizarse para ningún tipo de actividad malintencionada.
-🎯 Objetivo
+**Advertencia:** Este código tiene **únicamente fines educativos** y no debe utilizarse para ningún tipo de actividad malintencionada.
 
-Este proyecto tiene como propósito enseñar los fundamentos del cifrado y descifrado de archivos de texto utilizando Python y el cifrado César. Es una herramienta básica para comprender cómo funcionan los métodos clásicos de encriptación.
-🧠 Uso Responsable
+---
 
-    ⚠️ El objetivo de este código es estrictamente con fines de aprendizaje.
-    NO nos hacemos responsables del mal uso que se le dé.
+## 🎯 Objetivo
 
-❓ ¿Dudas o sugerencias?
+Este proyecto tiene como propósito enseñar cómo cifrar y descifrar archivos de texto en Python utilizando el método del **cifrado César**. Sirve como base para comprender los principios básicos de la criptografía clásica.
 
-Puedes comunicarte con el equipo de XONIDU a través de los siguientes medios:
+---
 
-    📸 Instagram: @xonidu
+## 🧠 Uso Responsable
 
-    📘 Facebook: xonidu
+> ⚠️ El objetivo de este código es únicamente con fines de **aprendizaje**.  
+> **NO** nos hacemos responsables del mal uso que se le dé.
 
-    📧 Email: xonidu@gmail.com
+---
+
+## ❓ ¿Dudas o sugerencias?
+
+Puedes comunicarte con el equipo de **XONIDU** a través de los siguientes medios:
+
+- 📸 **Instagram:** [@xonidu](https://instagram.com/xonidu)
+- 📘 **Facebook:** [xonidu](https://facebook.com/xonidu)
+- 📧 **Email:** xonidu@gmail.com
+
