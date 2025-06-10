@@ -22,6 +22,6 @@ Este proyecto tiene como propósito enseñar cómo cifrar y descifrar archivos d
 Puedes comunicarte con el equipo de **XONIDU** a través de los siguientes medios:
 
 - 📸 **Instagram:** [@xonidu](https://instagram.com/xonidu)
-- 📘 **Facebook:** [xonidu](https://facebook.com/xonidu)
+- 📘 **Facebook:** [xonidu](https://www.facebook.com/profile.php?id=61572209206888)
 - 📧 **Email:** xonidu@gmail.com
 
