@@ -1,153 +1,194 @@
-from flask import Flask, request, flash, redirect, url_for, make_response
-import os
+from flask import Flask, request, flash, redirect, url_for, make_response, render_template_string
+from werkzeug.utils import secure_filename
+import io
 
-# Configuración básica de Flask
 app = Flask(__name__)
 app.secret_key = "clave_secreta_para_flask"  # Clave para mensajes flash
-UPLOAD_FOLDER = "./uploads"
-RESULT_FOLDER = "./results"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(RESULT_FOLDER, exist_ok=True)
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-app.config["RESULT_FOLDER"] = RESULT_FOLDER
 
-# Algoritmo de Cifrado César
+# No se guardará nada en disco: todo en memoria
+# Tamaño máximo razonable por subida (ajusta si quieres)
+app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20 MB
+
+# Algoritmo de Cifrado César (trabaja con texto Unicode)
 def caesar_cipher(text, shift):
     encrypted = []
     for char in text:
-        if char.isalpha():  # Solo letras
-            shift_base = 65 if char.isupper() else 97
+        if char.isalpha():
+            # Mantener mayúsculas/minúsculas
+            shift_base = ord('A') if char.isupper() else ord('a')
             encrypted.append(chr((ord(char) - shift_base + shift) % 26 + shift_base))
         else:
             encrypted.append(char)
     return ''.join(encrypted)
 
-# Procesar archivo
-def process_file(file_path, shift, action):
-    # Leer el contenido del archivo original
-    with open(file_path, "r", encoding="utf-8") as file:
-        content = file.read()
-
-    # Determinar si se cifra o descifra
+# Procesar contenido en memoria (no escribe nada en disco)
+def process_content(content_text, shift, action):
     if action == "encrypt":
-        processed_content = caesar_cipher(content, shift)
+        processed = caesar_cipher(content_text, shift)
     else:
-        processed_content = caesar_cipher(content, -shift)
+        processed = caesar_cipher(content_text, -shift)
+    return processed
 
-    # Guardar el resultado en otro archivo
-    result_file_path = os.path.join(app.config["RESULT_FOLDER"], f"processed_{os.path.basename(file_path)}")
-    with open(result_file_path, "w", encoding="utf-8") as result_file:
-        result_file.write(processed_content)
+# HTML embebido: tema negro con texto blanco, nombre XONIENCRIPT, hecho por XONIDU
+HTML_PAGE = """
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>XONIENCRIPT — XONIDU</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --fg: #ffffff;
+            --accent: #ffffff;
+            --card: #0b0b0b;
+            --muted: #ffffff;
+        }
+        html,body{height:100%;margin:0;}
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+            padding: 18px;
+            display:flex;
+            align-items:flex-start;
+            justify-content:center;
+        }
+        .box {
+            width:100%;
+            max-width:720px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+            border: 1px solid rgba(255,255,255,0.06);
+            padding:18px;
+            border-radius:10px;
+            box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+        }
+        h1 { margin:0 0 8px 0; font-size:1.25rem; color:var(--accent) }
+        p.hint { color: var(--muted); margin: 8px 0 16px 0; }
+        label { display:block; margin-top:10px; font-weight:600; color:var(--fg) }
+        input[type="file"], input[type="number"], button {
+            margin-top:8px;
+            padding:10px;
+            border-radius:8px;
+            border:1px solid rgba(255,255,255,0.08);
+            background: transparent;
+            color: var(--fg);
+            width:100%;
+            box-sizing:border-box;
+        }
+        button {
+            background: var(--accent);
+            color: #000;
+            font-weight:700;
+            cursor:pointer;
+            border:none;
+            margin-top:14px;
+        }
+        .msg { color:#ff6666; margin-top:10px; }
+        footer { margin-top:14px; color:var(--muted); font-size:0.85rem; text-align:right; }
+        @media(min-width:600px){
+            .inputs{display:flex;gap:10px}
+            .inputs > *{flex:1}
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>XONIENCRIPT</h1>
+        <p class="hint">Hecho por XONIDU — Cifrado César para archivos de texto. Nada se guarda en el servidor; todo se procesa en memoria.</p>
 
-    return result_file_path
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="msg">
+              {% for m in messages %}
+                <div>{{ m }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
 
-# Ruta principal con Html embebido
+        <form method="POST" enctype="multipart/form-data" novalidate>
+            <label for="file">Selecciona un archivo de texto (.txt):</label>
+            <input type="file" name="file" id="file" accept=".txt,text/plain" required>
+
+            <label for="shift">Desplazamiento (0–25):</label>
+            <input type="number" name="shift" id="shift" min="0" max="25" value="3" required>
+
+            <div style="margin-top:10px;">
+                <input type="radio" name="action" value="encrypt" id="encrypt" required>
+                <label for="encrypt" style="display:inline; margin-left:8px;">Cifrar</label>
+                &nbsp;&nbsp;
+                <input type="radio" name="action" value="decrypt" id="decrypt" required>
+                <label for="decrypt" style="display:inline; margin-left:8px;">Descifrar</label>
+            </div>
+
+            <button type="submit">Procesar y descargar (sin guardar)</button>
+        </form>
+
+        <footer>XONIDU</footer>
+    </div>
+</body>
+</html>
+"""
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        # Validar acción seleccionada
+        # Validar acción
         action = request.form.get("action")
-        if action not in ["encrypt", "decrypt"]:
-            flash("Acción no válida seleccionada.")
+        if action not in ("encrypt", "decrypt"):
+            flash("Acción no válida.")
             return redirect(url_for("index"))
 
-        # Validar archivo subido
-        if "file" not in request.files:
+        # Validar archivo
+        upload = request.files.get("file")
+        if not upload or upload.filename == "":
             flash("No se seleccionó ningún archivo.")
             return redirect(url_for("index"))
 
-        file = request.files["file"]
-        if file.filename == "":
-            flash("No se seleccionó ningún archivo.")
-            return redirect(url_for("index"))
-
-        # Guardar archivo subido
-        file_path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
-        file.save(file_path)
-
-        # Validar desplazamiento (clave)
+        # Leer y procesar el archivo en memoria (sin escribir en disco)
         try:
-            shift = int(request.form.get("shift"))
-        except ValueError:
-            flash("Introduce un número válido para el desplazamiento.")
+            raw = upload.read()
+            # Intentar decodificar UTF-8, si falla usar latin-1 como fallback
+            try:
+                text = raw.decode("utf-8")
+            except Exception:
+                text = raw.decode("latin-1")
+        except Exception as e:
+            flash("Error leyendo el archivo: " + str(e))
             return redirect(url_for("index"))
 
-        # Procesar el archivo
-        result_file = process_file(file_path, shift, action)
+        # Validar shift
+        try:
+            shift = int(request.form.get("shift", 0))
+            if not (0 <= shift <= 25):
+                raise ValueError("Fuera de rango")
+        except Exception:
+            flash("Desplazamiento inválido. Debe ser un número entre 0 y 25.")
+            return redirect(url_for("index"))
 
-        # Devolver archivo procesado al usuario
-        with open(result_file, "r", encoding="utf-8") as file:
-            processed_content = file.read()
+        # Procesar
+        try:
+            processed_text = process_content(text, shift, action)
+        except Exception as e:
+            flash("Error procesando el archivo: " + str(e))
+            return redirect(url_for("index"))
 
-        response = make_response(processed_content)
-        response.headers["Content-Disposition"] = f"attachment; filename={os.path.basename(result_file)}"
-        response.mimetype = "text/plain"
+        # Preparar respuesta como descarga (sin guardar en servidor)
+        orig_name = secure_filename(upload.filename) or "input.txt"
+        out_name = f"processed_{orig_name}"
+        data = processed_text.encode("utf-8")
+        response = make_response(data)
+        response.headers["Content-Type"] = "text/plain; charset=utf-8"
+        response.headers["Content-Disposition"] = f"attachment; filename={out_name}"
         return response
 
-    # HTML embebido junto con el formulario
-    return """
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cifrado César</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                text-align: center;
-                background-color: #f4f4f9;
-                padding: 2em;
-                color: #333;
-            }
-            .container {
-                background: #fff;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                display: inline-block;
-            }
-            input[type="file"], input[type="number"], button {
-                margin: 10px 0;
-                padding: 10px;
-                width: 80%;
-            }
-            button {
-                background-color: #007BFF;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-            }
-            button:hover {
-                background-color: #0056b3;
-            }
-            .error {
-                color: red;
-                font-size: 0.9em;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>Cifrado César</h1>
-            <p>Sube un archivo y elige si deseas cifrar o descifrar el contenido.</p>
-            <form method="POST" enctype="multipart/form-data">
-                <label for="file">Sube tu archivo de texto:</label><br>
-                <input type="file" name="file" required><br>
-                <label for="shift">Desplazamiento (clave):</label><br>
-                <input type="number" name="shift" min="0" max="25" required><br>
-                <input type="radio" name="action" value="encrypt" id="encrypt" required>
-                <label for="encrypt">Cifrar</label><br>
-                <input type="radio" name="action" value="decrypt" id="decrypt" required>
-                <label for="decrypt">Descifrar</label><br>
-                <button type="submit">Procesar Archivo</button>
-            </form>
-        </div>
-    </body>
-    </html>
-    """
+    return render_template_string(HTML_PAGE)
 
-# Ejecutar aplicación
 if __name__ == "__main__":
-    app.run(debug=True)
+    host = "0.0.0.0"
+    port = 5500
+    print(f"* XONIENCRIPT (by XONIDU) running on {host}:{port}")
+    # No debug/reloader to keep comportamiento estable
+    app.run(host=host, port=port, debug=False, use_reloader=False)
