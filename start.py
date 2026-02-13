@@ -4,7 +4,7 @@ import io
 
 # Configuración básica de Flask
 app = Flask(__name__)
-app.secret_key = "clave_secreta_para_flask"  # Clave para mensajes flash
+app.secret_key = "XONIDU-Darian_Alberto_Camacho_Salas"  # Clave para mensajes flash
 
 # Tamaño máximo razonable por subida
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20 MB
