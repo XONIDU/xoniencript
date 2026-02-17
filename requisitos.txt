@@ -1,4 +1,7 @@
-#No requieres mayor requisito
+#Somos XONIDU
+
+#Creador: Darian Alberto Camacho Salas
+
 #Solo ejecuta el siguiente comando:
 
 python start.py
