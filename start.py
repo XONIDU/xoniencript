@@ -170,6 +170,7 @@ if __name__ == "__main__":
     print("=" * 50)
     print("✅ Servidor listo")
     print("=" * 50)
+    print("Somos XONIDU\nDarian Alberto Camacho Salas")
     
     # No debug/reloader para mantener comportamiento estable
     app.run(host=host, port=port, debug=False, use_reloader=False)
