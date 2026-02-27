@@ -17,6 +17,15 @@ Este proyecto tiene como propósito enseñar cómo cifrar y descifrar archivos d
 
 ---
 
+## 📥 Instalación
+
+Clona el repositorio desde GitHub:
+
+```bash
+git clone https://github.com/XONIDU/xoniencript.git
+cd xoniencript
+```
+
 ## ❓ ¿Dudas o sugerencias?
 
 Puedes comunicarte con el equipo de **XONIDU** a través de los siguientes medios:
