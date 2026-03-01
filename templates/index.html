@@ -6,130 +6,192 @@
     <title>XONIENCRIPT — XONIDU</title>
     <style>
         :root {
-            --bg: #000000;
-            --fg: #ffffff;
-            --accent: #ffffff;
-            --card: #0b0b0b;
-            --muted: #ffffff;
+            --bg: #0a0a0a;
+            --fg: #00ff00;
+            --accent: #00cc00;
+            --card: #0f0f0f;
+            --muted: #008800;
+            --border: #00ff00;
         }
-        html,body{height:100%;margin:0;}
-        body {
+        html,body{
+            height:100%;
+            margin:0;
             background: var(--bg);
-            color: var(--fg);
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+        }
+        body {
+            font-family: 'Courier New', monospace;
             padding: 18px;
             display:flex;
             align-items:flex-start;
             justify-content:center;
+            color: var(--fg);
         }
         .box {
             width:100%;
             max-width:720px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-            border: 1px solid rgba(255,255,255,0.06);
+            background: var(--card);
+            border: 2px solid var(--border);
             padding:18px;
-            border-radius:10px;
-            box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+            border-radius:0;
+            box-shadow: 8px 8px 0 rgba(0,255,0,0.1);
         }
         h1 { 
             margin:0 0 8px 0; 
-            font-size:1.25rem; 
-            color:var(--accent);
+            font-size:1.5rem; 
+            color: var(--fg);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
         }
         p.hint { 
             color: var(--muted); 
             margin: 8px 0 16px 0; 
+            font-family: 'Courier New', monospace;
         }
         label { 
             display:block; 
             margin-top:10px; 
             font-weight:600; 
-            color:var(--fg);
+            color: var(--fg);
+            text-transform: uppercase;
+            font-size: 0.9rem;
         }
         input[type="file"], input[type="number"], button {
             margin-top:8px;
             padding:10px;
-            border-radius:8px;
-            border:1px solid rgba(255,255,255,0.08);
-            background: transparent;
+            border-radius:0;
+            border: 1px solid var(--border);
+            background: var(--bg);
             color: var(--fg);
             width:100%;
             box-sizing:border-box;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        input[type="file"]:hover, input[type="number"]:hover {
+            background: #1a1a1a;
+        }
+        input[type="file"]:focus, input[type="number"]:focus {
+            outline: none;
+            border: 2px solid var(--fg);
+            background: #1a1a1a;
         }
         button {
-            background: var(--accent);
-            color: #000;
+            background: var(--bg);
+            color: var(--fg);
             font-weight:700;
             cursor:pointer;
-            border:none;
+            border: 2px solid var(--border);
             margin-top:14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: var(--fg);
+            color: var(--bg);
+            border-color: var(--fg);
         }
         .msg { 
-            color:#ff6666; 
+            color: #ff4444; 
             margin-top:10px; 
+            border: 1px solid #ff4444;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
         }
         footer { 
             margin-top:14px; 
-            color:var(--muted); 
-            font-size:0.85rem; 
+            color: var(--muted); 
+            font-size:0.8rem; 
             text-align:right; 
+            border-top: 1px solid var(--border);
+            padding-top: 8px;
+            font-family: 'Courier New', monospace;
         }
         .radio-group {
             margin-top:10px;
             display: flex;
             align-items: center;
             gap: 20px;
+            border: 1px solid var(--border);
+            padding: 10px;
+            background: var(--bg);
         }
         .radio-group input[type="radio"] {
             margin-right: 5px;
+            accent-color: var(--fg);
         }
         .radio-group label {
             display: inline;
             margin-top: 0;
+            text-transform: uppercase;
+            font-size: 0.9rem;
         }
         @media(min-width:600px){
             .inputs{display:flex;gap:10px}
             .inputs > *{flex:1}
+        }
+        /* Efecto de línea de comandos */
+        .box::before {
+            content: ">";
+            color: var(--fg);
+            font-size: 1.2rem;
+            margin-right: 10px;
+            opacity: 0.5;
+        }
+        /* Estilo para el input file */
+        ::file-selector-button {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--fg);
+            padding: 5px 10px;
+            font-family: 'Courier New', monospace;
+            margin-right: 10px;
+        }
+        ::file-selector-button:hover {
+            background: var(--fg);
+            color: var(--bg);
         }
     </style>
 </head>
 <body>
     <div class="box">
         <h1>XONIENCRIPT</h1>
-        <p class="hint">Hecho por XONIDU — Cifrado César para archivos de texto. Nada se guarda en el servidor; todo se procesa en memoria.</p>
+        <p class="hint">> Hecho por XONIDU — Cifrado César para archivos de texto. Nada se guarda en el servidor; todo se procesa en memoria.</p>
         
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             <div class="msg">
               {% for m in messages %}
-                <div>{{ m }}</div>
+                <div>> {{ m }}</div>
               {% endfor %}
             </div>
           {% endif %}
         {% endwith %}
         
         <form method="POST" enctype="multipart/form-data" novalidate>
-            <label for="file">Selecciona un archivo de texto (.txt):</label>
+            <label for="file">> Selecciona un archivo de texto (.txt):</label>
             <input type="file" name="file" id="file" accept=".txt,text/plain" required>
             
-            <label for="shift">Desplazamiento (0–25):</label>
+            <label for="shift">> Desplazamiento (0–25):</label>
             <input type="number" name="shift" id="shift" min="0" max="25" value="3" required>
             
             <div class="radio-group">
                 <div>
                     <input type="radio" name="action" value="encrypt" id="encrypt" required>
-                    <label for="encrypt" style="display:inline;">Cifrar</label>
+                    <label for="encrypt" style="display:inline;">[Cifrar]</label>
                 </div>
                 <div>
                     <input type="radio" name="action" value="decrypt" id="decrypt" required>
-                    <label for="decrypt" style="display:inline;">Descifrar</label>
+                    <label for="decrypt" style="display:inline;">[Descifrar]</label>
                 </div>
             </div>
 
-            <button type="submit">Procesar y descargar (sin guardar)</button>
+            <button type="submit">> EJECUTAR PROCESO</button>
         </form>
         
-        <footer>XONIDU</footer>
+        <footer>> XONIDU // TERMINAL v1.0</footer>
     </div>
 </body>
 </html>
