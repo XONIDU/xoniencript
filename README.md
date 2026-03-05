@@ -1,4 +1,6 @@
-# 📄 XONIENCRIPT
+# 📄 XONIENCRIPT v4.2.0
+
+## **Creador:** Darian Alberto Camacho Salas
 
 **Advertencia:** Este código tiene **únicamente fines educativos** y no debe utilizarse para ningún tipo de actividad malintencionada.
 
@@ -34,3 +36,4 @@ Puedes comunicarte con el equipo de **XONIDU** a través de los siguientes medio
 - 📘 **Facebook:** [xonidu](https://www.facebook.com/profile.php?id=61572209206888)
 - 📧 **Email:** xonidu@gmail.com
 - 👤 **Creador:** Darian Alberto Camacho Salas
+
