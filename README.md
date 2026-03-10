@@ -1,7 +1,6 @@
 # 📄 XONIENCRIPT v4.2.0
 
 ## **Creador:** Darian Alberto Camacho Salas
-
 **Advertencia:** Este código tiene **únicamente fines educativos** y no debe utilizarse para ningún tipo de actividad malintencionada.
 
 ---
