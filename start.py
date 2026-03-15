@@ -1,176 +1,132 @@
-from flask import Flask, request, flash, redirect, url_for, make_response, render_template
-from werkzeug.utils import secure_filename
-import io
-import socket
-import qrcode
-import base64
+#!/usr/bin/env python3
+# Creditos: XONIDU
+# start.py - Instalador de dependencias y lanzador de XONIENCRIPT
 
-# Configuración básica de Flask
-app = Flask(__name__)
-app.secret_key = "XONIDU-Darian_Alberto_Camacho_Salas"  # Clave para mensajes flash
+import os
+import sys
+import subprocess
+import platform
+from time import sleep
 
-# Tamaño máximo razonable por subida
-app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20 MB
+# Colores para terminal
+GREEN = '\033[92m'
+RED = '\033[91m'
+RESET = '\033[0m'
+BOLD = '\033[1m'
 
-# ===== FUNCIONES PARA QR =====
-def generate_qr_base64(url):
-    """Genera un código QR en base64 para mostrar en HTML"""
+def clear_screen():
+    """Limpia la pantalla según el sistema operativo"""
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def print_banner():
+    """Muestra el banner de XONIDU"""
+    clear_screen()
+    print(GREEN + BOLD)
+    print("╔══════════════════════════════════════╗")
+    print("║         XONIENCRIPT v1.0             ║")
+    print("║         by XONIDU                     ║")
+    print("╚══════════════════════════════════════╝")
+    print(RESET)
+
+def check_and_install_dependencies():
+    """Verifica e instala Flask (única dependencia necesaria)"""
+    print(GREEN + "[*] Verificando dependencias..." + RESET)
+    
     try:
-        qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=10,
-            border=4,
-        )
-        qr.add_data(url)
-        qr.make(fit=True)
-        
-        img = qr.make_image(fill_color="black", back_color="white")
-        
-        # Convertir a base64
-        buffered = io.BytesIO()
-        img.save(buffered, format="PNG")
-        img_str = base64.b64encode(buffered.getvalue()).decode()
-        
-        return img_str
+        __import__('flask')
+        print(GREEN + "[✓] Flask ya está instalado" + RESET)
+        return True
+    except ImportError:
+        print(RED + "[!] Flask no está instalado. Instalando..." + RESET)
+        try:
+            # Detectar sistema operativo para el flag adecuado
+            if platform.system() == "Linux":
+                subprocess.check_call([sys.executable, "-m", "pip", "install", "flask", "--break-system-packages"])
+            else:
+                subprocess.check_call([sys.executable, "-m", "pip", "install", "flask"])
+            
+            print(GREEN + "[✓] Flask instalado correctamente" + RESET)
+            return True
+        except subprocess.CalledProcessError as e:
+            print(RED + f"[✗] Error instalando Flask: {e}" + RESET)
+            return False
+
+def launch_xoniencript():
+    """Lanza el archivo xoniencript.py"""
+    if not os.path.exists('xoniencript.py'):
+        print(RED + "[✗] Error: No se encuentra xoniencript.py en el directorio actual" + RESET)
+        print(GREEN + "[*] Asegúrate de tener el archivo xoniencript.py en la misma carpeta" + RESET)
+        return False
+    
+    print(GREEN + "[*] Iniciando XONIENCRIPT..." + RESET)
+    print(GREEN + "[*] Servidor web en: http://localhost:5000" + RESET)
+    print(GREEN + "[*] Presiona CTRL+C para detener el servidor" + RESET)
+    sleep(2)
+    
+    try:
+        # Ejecutar xoniencript.py
+        subprocess.run([sys.executable, 'xoniencript.py'])
+    except KeyboardInterrupt:
+        print(GREEN + "\n[*] Servidor detenido" + RESET)
     except Exception as e:
-        print(f"Error generando QR: {e}")
-        return None
+        print(RED + f"[✗] Error al ejecutar xoniencript.py: {e}" + RESET)
+        return False
+    
+    return True
 
-def get_server_url():
-    """Obtiene la URL del servidor"""
-    try:
-        hostname = socket.gethostname()
-        local_ip = socket.gethostbyname(hostname)
-        return f"http://{local_ip}:5500"
-    except:
-        return "http://localhost:5500"
+def show_menu():
+    """Muestra el menú principal"""
+    print(GREEN + BOLD)
+    print("╔══════════════════════════════════════╗")
+    print("║           XONIENCRIPT LAUNCHER       ║")
+    print("╠══════════════════════════════════════╣")
+    print("║  [0] Instalar dependencias           ║")
+    print("║  [1] Lanzar XONIENCRIPT              ║")
+    print("║  [2] Salir                            ║")
+    print("╚══════════════════════════════════════╝")
+    print(RESET)
 
-# ===== ALGORITMO DE CIFRADO =====
-# Algoritmo de Cifrado César (trabaja con texto Unicode)
-def caesar_cipher(text, shift):
-    encrypted = []
-    for char in text:
-        if char.isalpha():
-            # Mantener mayúsculas/minúsculas
-            shift_base = ord('A') if char.isupper() else ord('a')
-            encrypted.append(chr((ord(char) - shift_base + shift) % 26 + shift_base))
+def main():
+    """Función principal"""
+    while True:
+        print_banner()
+        show_menu()
+        
+        opt = input(GREEN + "> Opción: " + RESET)
+        
+        if opt == "0":
+            print(GREEN + "[*] Instalando dependencias..." + RESET)
+            if check_and_install_dependencies():
+                print(GREEN + "[✓] Proceso completado" + RESET)
+            else:
+                print(RED + "[✗] Error en la instalación" + RESET)
+            sleep(2)
+            
+        elif opt == "1":
+            # Verificar dependencias antes de lanzar
+            if check_and_install_dependencies():
+                launch_xoniencript()
+            else:
+                print(RED + "[✗] No se pueden instalar las dependencias necesarias" + RESET)
+                sleep(2)
+            
+            input(GREEN + "\nPresiona Enter para volver al menú..." + RESET)
+            
+        elif opt == "2":
+            print(GREEN + "\n[*] Saliendo...")
+            print("[*] Créditos: XONIDU")
+            print(RESET)
+            sleep(1)
+            clear_screen()
+            break
+            
         else:
-            encrypted.append(char)
-    return ''.join(encrypted)
+            print(RED + "[!] Opción inválida" + RESET)
+            sleep(1)
 
-# Procesar contenido en memoria (no escribe nada en disco)
-def process_content(content_text, shift, action):
-    if action == "encrypt":
-        processed = caesar_cipher(content_text, shift)
-    else:
-        processed = caesar_cipher(content_text, -shift)
-    return processed
-
-# ===== RUTAS =====
-@app.route("/", methods=["GET", "POST"])
-def index():
-    # Generar QR para la URL del servidor
-    server_url = get_server_url()
-    qr_base64 = generate_qr_base64(server_url)
-    
-    if request.method == "POST":
-        # Validar acción
-        action = request.form.get("action")
-        if action not in ("encrypt", "decrypt"):
-            flash("Acción no válida.")
-            return redirect(url_for("index"))
-
-        # Validar archivo
-        upload = request.files.get("file")
-        if not upload or upload.filename == "":
-            flash("No se seleccionó ningún archivo.")
-            return redirect(url_for("index"))
-
-        # Leer y procesar el archivo en memoria (sin escribir en disco)
-        try:
-            raw = upload.read()
-            # Intentar decodificar UTF-8, si falla usar latin-1 como fallback
-            try:
-                text = raw.decode("utf-8")
-            except Exception:
-                text = raw.decode("latin-1")
-        except Exception as e:
-            flash("Error leyendo el archivo: " + str(e))
-            return redirect(url_for("index"))
-
-        # Validar shift
-        try:
-            shift = int(request.form.get("shift", 0))
-            if not (0 <= shift <= 25):
-                raise ValueError("Fuera de rango")
-        except Exception:
-            flash("Desplazamiento inválido. Debe ser un número entre 0 y 25.")
-            return redirect(url_for("index"))
-
-        # Procesar
-        try:
-            processed_text = process_content(text, shift, action)
-        except Exception as e:
-            flash("Error procesando el archivo: " + str(e))
-            return redirect(url_for("index"))
-
-        # Preparar respuesta como descarga (sin guardar en servidor)
-        orig_name = secure_filename(upload.filename) or "input.txt"
-        out_name = f"processed_{orig_name}"
-        data = processed_text.encode("utf-8")
-        
-        response = make_response(data)
-        response.headers["Content-Type"] = "text/plain; charset=utf-8"
-        response.headers["Content-Disposition"] = f"attachment; filename={out_name}"
-        return response
-
-    # Renderizar template HTML con el QR
-    return render_template('index.html', qr_code=qr_base64, server_url=server_url)
-
-@app.route("/qr_code")
-def qr_code():
-    """Endpoint para obtener el código QR como JSON"""
-    server_url = get_server_url()
-    qr_base64 = generate_qr_base64(server_url)
-    
-    if qr_base64:
-        return {
-            "qr_base64": qr_base64,
-            "url": server_url
-        }
-    else:
-        return {"error": "No se pudo generar el QR"}, 500
-
-# ===== INICIO =====
 if __name__ == "__main__":
-    host = "0.0.0.0"
-    port = 5500
-    server_url = get_server_url()
-    
-    print("=" * 50)
-    print("🔐 XONIENCRIPT by XONIDU")
-    print("=" * 50)
-    print(f"📡 Servidor: {host}:{port}")
-    print(f"🌐 URL local: {server_url}")
-    
-    # Generar QR para la terminal
     try:
-        qr_ascii = qrcode.QRCode()
-        qr_ascii.add_data(server_url)
-        print("\n📱 Escanea este código QR desde tu teléfono:")
-        print("-" * 50)
-        qr_ascii.print_ascii()
-        print("-" * 50)
-        print(f"O accede a: {server_url}/qr_code para ver el QR")
-    except Exception as e:
-        print(f"\n📱 Accede a: {server_url}/qr_code para ver el QR")
-        print("(Instala 'pip install qrcode pillow' para ver QR en terminal)")
-    
-    print("=" * 50)
-    print("✅ Servidor listo")
-    print("=" * 50)
-    print("Somos XONIDU\nDarian Alberto Camacho Salas")
-    
-    # No debug/reloader para mantener comportamiento estable
-    app.run(host=host, port=port, debug=False, use_reloader=False)
+        main()
+    except KeyboardInterrupt:
+        print(GREEN + "\n\n[*] Hasta pronto!" + RESET)
+        sys.exit(0)
