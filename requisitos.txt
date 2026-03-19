@@ -39,3 +39,7 @@ pip install pillow
 
 # Ejecucion:
 python start.py
+
+#o
+
+python3 start.py
